@@ -35,17 +35,15 @@
 
 # Batch 4
 
-- [ ] HwGlitchyPostEffect
-- [ ] HwInstancedBlackHoleEffect
-- [ ] DefaultEffect_Textured
-- [ ] DefaultEffect_TexturedVertexColored
-- [ ] FakePointSpritesEffect
-- [ ] HwPlaneParticleEffect
-- [ ] DefaultEffect_LitVertexColored
-- [ ] VibratingEffect
-- [ ] DotEffect
-- [ ] InstancedBlackHoleEffect
-- [ ] SkyEffect (Unused, without class)
+- [x] HwInstancedBlackHoleEffect (Black holes effect, SM3 version)
+- [x] DefaultEffect_Textured (Sky layers, Dot rays and halo, menu and so much more)
+- [x] DefaultEffect_TexturedVertexColored (Unused)
+- [x] FakePointSpritesEffect (Star field background)
+- [x] DefaultEffect_LitVertexColored (Mostly used in `VILLAGEVILLE_3D_END_32` or `VILLAGEVILLE_3D_END_64`)
+- [x] VibratingEffect (Vibrating membrane sequence in `VILLAGEVILLE_3D_END_32`)
+- [x] DotEffect (Changes color of Dot)
+- [x] InstancedBlackHoleEffect (Black holes effect, SM2 version)
+- [x] SkyEffect (Unused, without class)
 
 # Batch 5
 
@@ -54,6 +52,7 @@
 - [ ] FoamEffect
 - [ ] CubemappedEffect
 - [ ] GlitchyPostEffect
+- [ ] HwGlitchyPostEffect
 - [ ] DefaultEffect_LitTextured
 - [ ] HwInstancedMapEffect
 - [ ] DefaultEffect_LitTexturedVertexColored
@@ -63,6 +62,7 @@
 - [ ] InstancedAnimatedPlaneEffect
 - [ ] GomezEffect
 - [ ] PlaneParticleEffect
+- [ ] HwPlaneParticleEffect
 - [ ] TrixelParticleEffect
 - [ ] HorizontalTrailsEffect
 - [ ] StaticPlaneEffect
