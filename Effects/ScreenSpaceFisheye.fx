@@ -36,7 +36,7 @@ VS_OUTPUT VS(VS_INPUT input)
     return output;
 }
 
-float4 PS_Main(VS_OUTPUT input) : COLOR0
+float4 PS(VS_OUTPUT input) : COLOR0
 {
     // Center the UV
     float2 centered = (input.TexCoord - 0.5) * 2.0; // [-1, 1] range
@@ -58,6 +58,6 @@ technique TSM2
     pass Main
     {
         VertexShader = compile vs_2_0 VS();
-        PixelShader = compile ps_2_0 PS_Main();
+        PixelShader = compile ps_2_0 PS();
     }
 }

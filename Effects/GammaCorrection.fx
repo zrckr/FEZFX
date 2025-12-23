@@ -33,7 +33,7 @@ VS_OUTPUT VS(VS_INPUT input)
     return output;
 }
 
-float4 PS_GammaCorrect(VS_OUTPUT input) : COLOR0
+float4 PS(VS_OUTPUT input) : COLOR0
 {
     float4 texColor = tex2D(MainBufferSampler, input.TexCoord);
 	float gamma = 1.0 / (0.5 + Brightness);
@@ -49,6 +49,6 @@ technique TSM2
     pass GammaCorrect
     {
         VertexShader = compile vs_2_0 VS();
-        PixelShader = compile ps_2_0 PS_GammaCorrect();
+        PixelShader = compile ps_2_0 PS();
     }
 }

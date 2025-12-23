@@ -37,7 +37,7 @@ VS_OUTPUT VS(VS_INPUT input)
     return output;
 }
 
-float4 PS_Main(VS_OUTPUT input) : COLOR0
+float4 PS(VS_OUTPUT input) : COLOR0
 {
     // Barrel distortion
     float2 offset = input.TexCoord - 0.5;
@@ -76,6 +76,6 @@ technique TSM2
     pass Main
     {
         VertexShader = compile vs_2_0 VS();
-        PixelShader = compile ps_2_0 PS_Main();
+        PixelShader = compile ps_2_0 PS();
     }
 }

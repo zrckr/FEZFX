@@ -29,7 +29,7 @@ VS_OUTPUT VS(VS_INPUT input)
     return output;
 }
 
-float4 PS_Main(VS_OUTPUT input) : COLOR0
+float4 PS(VS_OUTPUT input) : COLOR0
 {
     clip(input.Color.a * Material_Opacity - 0.01);
     float4 material = float4(Material_Diffuse, Material_Opacity * Material_Opacity);
@@ -41,6 +41,6 @@ technique TSM2
     pass Main
     {
         VertexShader = compile vs_2_0 VS();
-        PixelShader = compile ps_2_0 PS_Main();
+        PixelShader = compile ps_2_0 PS();
     }
 }

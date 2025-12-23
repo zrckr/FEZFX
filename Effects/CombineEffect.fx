@@ -41,7 +41,7 @@ VS_OUTPUT VS(VS_INPUT input)
     return output;
 }
 
-float4 PS_Main(VS_OUTPUT input) : COLOR0
+float4 PS(VS_OUTPUT input) : COLOR0
 {
     float4 leftColor = tex2D(LeftSampler, input.TexCoord);
     float4 rightColor = tex2D(RightSampler, input.TexCoord);
@@ -61,6 +61,6 @@ technique ShaderModel2
     pass Main
     {
         VertexShader = compile vs_2_0 VS();
-        PixelShader = compile ps_2_0 PS_Main();
+        PixelShader = compile ps_2_0 PS();
     }
 }
