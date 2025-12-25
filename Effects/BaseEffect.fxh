@@ -174,4 +174,32 @@ float4 ApplyTexelOffset(float4 position, float2 offset)
     return float4(position.xy + (offset * position.w), position.zw);
 }
 
+float3 CalculateLighting(float3 normal, float brightness )
+{
+    float3 ambient = saturate(brightness + BaseAmbient);
+    float3 invAmbient = 1.0 - BaseAmbient;
+    float3 invDiffuse = brightness  * (1.0 - DiffuseLight);
+
+    // Front lighting for surfaces lit directly
+    float ndotl = saturate(dot(normal, 1.0));
+    float3 frontLighting = ndotl * invAmbient + ambient;
+
+    // Back lighting for surfaces facing away (60% contribution)
+    float3 backLighting = abs(normal.z) * invAmbient * 0.6 + frontLighting;
+    float3 lighting = (normal.z < -0.01) ? backLighting : frontLighting;
+
+    // Side lighting for surfaces facing left/right (30% contribution)
+    float3 sideLighting = abs(normal.x) * invAmbient * 0.3 + lighting;
+    lighting = saturate((normal.x < -0.01) ? sideLighting : lighting);
+
+    return DiffuseLight * lighting + invDiffuse;
+}
+
+float ApplySpecular(float3 normal)
+{
+    float3 eyeDir = Eye - float3(0.0, 0.25, 0.0);
+    float specular = dot(eyeDir, normal);
+    return saturate(pow(specular, 8)) * 0.5;
+}
+
 #endif // BASE_EFFECT_FXH

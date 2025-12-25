@@ -31,41 +31,16 @@ VS_OUTPUT VS(VS_INPUT input)
 
 float4 PS_Main(VS_OUTPUT input) : COLOR0
 {
-    float3 normal = input.Normal;
-    
-    // Calculate ambient contribution
     float brightness = (Fullbright) ? 1.0 : Emissive;
-    float3 ambient = saturate(brightness + BaseAmbient);
-    float3 invAmbient = 1.0 - BaseAmbient;
-    float3 invDiffuse = brightness * (1.0 - DiffuseLight);
+    float3 litColor = CalculateLighting(input.Normal, brightness);
     
-    // Front lighting
-    float normalDotLight = saturate(dot(normal, 1.0));
-    float3 frontLighting = normalDotLight * invAmbient + ambient;
+    float3 color = litColor * input.Color.rgb * Material_Diffuse;
+    float alpha = input.Color.a * Material_Opacity;
     
-    // Backface lighting
-    float3 backLighting = abs(normal.z) * invAmbient * 0.6 + frontLighting;
-    float3 lighting = (normal.z < -0.01) ? backLighting : frontLighting;
-    
-    // Side lighting
-    float3 sideLighting = abs(normal.x) * invAmbient * 0.3 + lighting;
-    lighting = saturate((normal.x < -0.01) ? sideLighting : lighting);
-    
-    // Apply diffuse and vertex color on material
-    lighting = DiffuseLight * lighting + invDiffuse;
-    float3 color = lighting * input.Color.rgb * Material_Diffuse;
-    
-    // Calculate specular
     if (SpecularEnabled)
     {
-        float3 eyeDir = Eye - float3(0.0, 0.25, 0.0);
-        float specular = dot(eyeDir, normal);
-        specular = saturate(pow(specular, 8));
-        color += specular * 0.5;
+        color += ApplySpecular(input.Normal);
     }
-    
-    // Calculate alpha
-    float alpha = input.Color.a * Material_Opacity;
 
     return float4(color, alpha);
 }

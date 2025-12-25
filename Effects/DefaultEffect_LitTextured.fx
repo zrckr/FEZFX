@@ -31,12 +31,8 @@ VS_OUTPUT VS(VS_INPUT input)
 
 float4 PS_Main(VS_OUTPUT input) : COLOR0
 {
-    float3 normal = input.Normal;
-
     float4 texColor = tex2D(BaseSampler, input.TexCoord);
     float brightness = (Fullbright) ? 1.0 : Emissive;
-    float3 invAmbient = 1.0 - BaseAmbient;
-    float3 invDiffuse = 1.0 - DiffuseLight;
 
     float alphaValue = texColor.a * Material_Opacity;
     float alphaEmissive = (AlphaIsEmissive) ? Material_Opacity : alphaValue;
@@ -50,27 +46,12 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
     emissiveAlpha = (AlphaIsEmissive) ? emissiveAlpha : brightness;
     emissiveAlpha = (TextureEnabled) ? emissiveAlpha : brightness;
 
-    float3 ambient = saturate(emissiveAlpha + BaseAmbient);
-    float3 ambientColor = emissiveAlpha * invDiffuse;
-
-    float ndotl = saturate(dot(normal, 1.0));
-    float3 frontLighting = ndotl * invAmbient + ambient;
-
-    float3 backLighting = abs(normal.z) * invAmbient * 0.6 + frontLighting;
-    float3 lighting = (normal.z >= -0.01) ? frontLighting : backLighting;
-
-    float3 sideLighting = abs(normal.x) * invAmbient * 0.3 + lighting;
-    lighting = saturate((normal.x >= -0.01) ? lighting : sideLighting);
-
-    float3 litColor = lighting * DiffuseLight + ambientColor;
-    float3 color = diffuseColor * litColor;
+    float3 litColor = CalculateLighting(input.Normal, brightness);
+    float3 color = litColor * diffuseColor;
 
     if (SpecularEnabled)
     {
-        float3 eyeDir = Eye - float3(0, 0.25, 0);
-        float specular = dot(eyeDir, normal);
-        specular = saturate(pow(specular, 8));
-        color += specular * 0.5;
+        color += ApplySpecular(input.Normal);
     }
 
     return float4(color, alpha);
