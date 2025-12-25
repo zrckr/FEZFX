@@ -46,7 +46,7 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
     emissiveAlpha = (AlphaIsEmissive) ? emissiveAlpha : brightness;
     emissiveAlpha = (TextureEnabled) ? emissiveAlpha : brightness;
 
-    float3 litColor = CalculateLighting(input.Normal, brightness);
+    float3 litColor = CalculateLighting(input.Normal, emissiveAlpha);
     float3 color = litColor * diffuseColor;
 
     if (SpecularEnabled)
