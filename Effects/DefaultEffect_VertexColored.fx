@@ -28,8 +28,10 @@ VS_OUTPUT VS(VS_INPUT input)
 
 float4 PS_Main(VS_OUTPUT input) : COLOR0
 {
-    float4 material = float4(Material_Diffuse, Material_Opacity);
-    return input.Color * material;
+    float alpha = input.Color.a * Material_Opacity;
+    float3 color = input.Color.rgb * Material_Diffuse;
+    
+    return float4(color, alpha);
 }
 
 float4 PS_Pre(VS_OUTPUT input) : COLOR0

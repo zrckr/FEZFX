@@ -35,21 +35,26 @@ VS_OUTPUT VS(VS_INPUT input)
 float4 PS_Main(VS_OUTPUT input) : COLOR0
 {
     float4 texColor = tex2D(BaseSampler, input.TexCoord);
+
+    float alpha = input.Color.a * Material_Opacity;
+    if (TextureEnabled && !AlphaIsEmissive)
+    {
+        alpha *= texColor.a;
+    }
+
+    float3 diffuse = input.Color.rgb * Material_Diffuse;
+    if (TextureEnabled)
+    {
+        diffuse *= texColor.rgb;
+    }
+
     float brightness = (Fullbright) ? 1.0 : Emissive;
+    if (TextureEnabled && AlphaIsEmissive)
+    {
+        brightness = texColor.a;
+    }
 
-    float vertexAlpha = input.Color.a * Material_Opacity;
-    float texVertexAlpha = texColor.a * vertexAlpha;
-
-    float alphaValue = (!AlphaIsEmissive) ? texVertexAlpha : vertexAlpha;
-    float emissiveAlpha = (!AlphaIsEmissive) ? brightness : texColor.a;
-
-    float alpha = (!TextureEnabled) ? vertexAlpha : alphaValue;
-    emissiveAlpha = (!TextureEnabled) ? brightness : emissiveAlpha;
-
-    float3 diffuseColor = input.Color.rgb * Material_Diffuse;
-    diffuseColor = (TextureEnabled) ? texColor.rgb * diffuseColor : diffuseColor;
-
-    float3 color = ApplyLitShading(input.Normal, emissiveAlpha, diffuseColor);
+    float3 color = ApplyLitShading(input.Normal, brightness, diffuse);
 
     return float4(color, alpha);
 }

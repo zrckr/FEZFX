@@ -32,13 +32,15 @@ VS_OUTPUT VS(VS_INPUT input)
 float4 PS_Main(VS_OUTPUT input) : COLOR0
 {
     float4 texColor = tex2D(BaseSampler, input.TexCoord);
+
+    float alpha = input.Color.a * Material_Opacity;
+    if (!AlphaIsEmissive)
+    {
+        alpha *= texColor.a;
+    }
     
-    float vertexAlpha = input.Color.a * Material_Opacity;
-    float texturedAlpha = texColor.a * vertexAlpha;
-    float alpha = (AlphaIsEmissive) ? vertexAlpha : texturedAlpha;
-    
-    float3 materialColor = input.Color.rgb * Material_Diffuse;
-    float3 color = texColor.rgb * materialColor;
+    float3 color = input.Color.rgb * Material_Diffuse;
+    color *= texColor.rgb;
     
     return float4(color, alpha);
 }
