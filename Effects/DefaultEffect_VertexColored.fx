@@ -1,13 +1,7 @@
 // DefaultEffect_VertexColored
 // 2899B01F2494D82D5F258560662D1C4C32C63F3EA0B124B4D6523D031DF50E96
 
-float3 Material_Diffuse;
-float Material_Opacity;
-float4x4 Matrices_WorldViewProjection;
-float2 TexelOffset;
-bool AlphaIsEmissive;
-bool Fullbright;
-float Emissive;
+#include "DefaultEffect.fxh"
 
 struct VS_INPUT
 {

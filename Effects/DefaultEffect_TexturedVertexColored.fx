@@ -1,23 +1,7 @@
 // DefaultEffect_TexturedVertexColored
 // 8C85DFBC0C649AABB69DF33454F1CEAB82AD8A6C2171450FC683E7D15124A11A
 
-static const float3 LUMINANCE = float3(1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0);
-
-float4x4 Matrices_WorldViewProjection;
-float3x3 Matrices_Texture;
-float2 TexelOffset;
-
-float3 Material_Diffuse;
-float Material_Opacity;
-bool AlphaIsEmissive;
-bool Fullbright;
-float Emissive;
-
-texture BaseTexture;
-sampler2D BaseSampler = sampler_state
-{
-    Texture = <BaseTexture>;
-};
+#include "DefaultEffect.fxh"
 
 struct VS_INPUT
 {

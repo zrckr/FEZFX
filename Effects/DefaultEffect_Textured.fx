@@ -1,26 +1,7 @@
 // DefaultEffect_Textured
 // 30647D335B85CD4780FC8AE8712414FDA7528D2E718B7BA6123B4F4C22BBDCF9
 
-#include "Common.fxh"
-
-static const float3 LUMINANCE = float3(1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0);
-
-float4x4 Matrices_WorldViewProjection;
-float3x3 Matrices_Texture;
-float2 TexelOffset;
-
-float3 Material_Diffuse;
-float Material_Opacity;
-bool TextureEnabled;
-bool AlphaIsEmissive;
-bool Fullbright;
-float Emissive;
-
-texture BaseTexture;
-sampler2D BaseSampler = sampler_state
-{
-    Texture = <BaseTexture>;
-};
+#include "DefaultEffect.fxh"
 
 struct VS_INPUT
 {

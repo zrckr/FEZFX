@@ -1,21 +1,7 @@
 // DefaultEffect_LitTexturedVertexColored
 // 36316EC6700D7D3A79ABA5E02852D91B3106EE1E0E4DF956362B8F851B2DD9C6
 
-#include "BaseEffect.fxh"
-
-static const float3 LUMINANCE = float3(1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0);
-
-float TextureEnabled;
-float AlphaIsEmissive;
-float Fullbright;
-float Emissive;
-float SpecularEnabled;
-
-texture BaseTexture;
-sampler2D BaseSampler = sampler_state
-{
-    Texture = <BaseTexture>;
-};
+#include "DefaultEffect.fxh"
 
 struct VS_INPUT
 {

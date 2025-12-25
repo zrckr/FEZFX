@@ -1,20 +1,7 @@
 // DefaultEffect_LitVertexColored
 // FFC3533698B804B7EB0D25CB87B09C60C9FFD2C70DB9E84FF67143FCE17C9F41
 
-float4x4 Matrices_WorldViewProjection;
-float4x4 Matrices_WorldInverseTranspose;
-float2 TexelOffset;
-
-float3 DiffuseLight;
-float3 BaseAmbient;
-float3 Eye;
-bool SpecularEnabled;
-bool Fullbright;
-float Emissive;
-
-float3 Material_Diffuse;
-float Material_Opacity;
-bool AlphaIsEmissive;
+#include "DefaultEffect.fxh"
 
 struct VS_INPUT
 {
