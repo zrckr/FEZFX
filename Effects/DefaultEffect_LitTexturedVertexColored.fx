@@ -49,13 +49,7 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
     float3 diffuseColor = input.Color.rgb * Material_Diffuse;
     diffuseColor = (TextureEnabled) ? texColor.rgb * diffuseColor : diffuseColor;
 
-    float3 litColor = CalculateLighting(input.Normal, emissiveAlpha);
-    float3 color = litColor * diffuseColor;
-
-    if (SpecularEnabled)
-    {
-        color += ApplySpecular(input.Normal);
-    }
+    float3 color = ApplyLitShading(input.Normal, emissiveAlpha, diffuseColor);
 
     return float4(color, alpha);
 }

@@ -18,6 +18,19 @@ sampler2D BaseSampler = sampler_state
     Texture = <BaseTexture>;
 };
 
+float3 ApplyLitShading(float3 normal, float brightness, float3 diffuse)
+{
+    float3 litColor = CalculateLighting(normal, brightness);
+    float3 color = litColor * diffuse;
+
+    if (SpecularEnabled)
+    {
+        color += ApplySpecular(normal);
+    }
+
+    return color;
+}
+
 float4 CalculatePrePassTextured(float4 texColor)
 {
     float brightness;
