@@ -18,4 +18,59 @@ sampler2D BaseSampler = sampler_state
     Texture = <BaseTexture>;
 };
 
+float4 CalculatePrePassTextured(float4 texColor)
+{
+    float brightness;
+    if (Fullbright)
+    {
+        brightness = texColor.a;
+    }
+    else if (AlphaIsEmissive)
+    {
+        brightness = Emissive;
+    }
+    else
+    {
+        brightness = dot(texColor.rgb, LUMINANCE);
+    }
+    
+    if (!TextureEnabled)
+    {
+        brightness = 1.0;
+    }
+
+    float4 color;
+    if (Fullbright)
+    {
+        color.rgb = brightness * Material_Diffuse * 0.5;
+        color.a = brightness * Material_Opacity;
+    }
+    else
+    {
+        color.rgb = 0.5;
+        color.a = 1.0;
+    }
+
+    return color;
+}
+
+float4 CalculatePrePassVertexColored()
+{
+    float brightness = (Fullbright) ? 1.0 : Emissive;
+
+    float4 color;
+    if (AlphaIsEmissive)
+    {
+        color.rgb = brightness * Material_Diffuse * 0.5;
+        color.a = brightness * Material_Opacity;
+    }
+    else
+    {
+        color.rgb = 0.5;
+        color.a = 1.0;
+    }
+
+    return color;
+}
+
 #endif // DEFAULT_EFFECT_FXH

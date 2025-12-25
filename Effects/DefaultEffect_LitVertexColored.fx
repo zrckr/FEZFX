@@ -47,21 +47,7 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
 
 float4 PS_Pre(VS_OUTPUT input) : COLOR0
 {
-    float brightness = (Fullbright) ? 1.0 : Emissive;
-    float3 color = Material_Diffuse * brightness;
-    float alpha = Material_Opacity * brightness;
-
-    if (AlphaIsEmissive)
-    {
-        color = 0.5;
-    }
-    else
-    {
-        color *= 0.5;
-        alpha = 1.0;
-    }
-    
-    return float4(color, alpha);
+    return CalculatePrePassVertexColored();
 }
 
 technique TSM2

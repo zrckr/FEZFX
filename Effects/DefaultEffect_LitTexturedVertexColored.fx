@@ -63,39 +63,7 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
 float4 PS_Pre(VS_OUTPUT input) : COLOR0
 {
     float4 texColor = tex2D(BaseSampler, input.TexCoord);
-    float luminance = dot(texColor.rgb, LUMINANCE);
-
-    float alpha;
-    if (Fullbright)
-    {
-        alpha = texColor.a;
-    }
-    else if (AlphaIsEmissive)
-    {
-        alpha = Emissive;
-    }
-    else
-    {
-        alpha = luminance;
-    }
-    if (!TextureEnabled)
-    {
-        alpha = 1.0;
-    }
-
-    float4 color;
-    if (Fullbright)
-    {
-        color.rgb = alpha * Material_Diffuse * 0.5;
-        color.a = alpha * Material_Opacity;
-    }
-    else
-    {
-        color.rgb = 0.5;
-        color.a = 1.0;
-    }
-
-    return color;
+    return CalculatePrePassTextured(texColor);
 }
 
 technique TSM2
