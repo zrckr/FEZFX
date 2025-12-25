@@ -1,21 +1,7 @@
 // DefaultEffect_LitTexturedVertexColored
 // 36316EC6700D7D3A79ABA5E02852D91B3106EE1E0E4DF956362B8F851B2DD9C6
 
-#include "BaseEffect.fxh"
-
-static const float3 LUMINANCE = float3(1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0);
-
-float TextureEnabled;
-float AlphaIsEmissive;
-float Fullbright;
-float Emissive;
-float SpecularEnabled;
-
-texture BaseTexture;
-sampler2D BaseSampler = sampler_state
-{
-    Texture = <BaseTexture>;
-};
+#include "DefaultEffect.fxh"
 
 struct VS_INPUT
 {
@@ -48,47 +34,27 @@ VS_OUTPUT VS(VS_INPUT input)
 
 float4 PS_Main(VS_OUTPUT input) : COLOR0
 {
-    float3 normal = input.Normal;
-
     float4 texColor = tex2D(BaseSampler, input.TexCoord);
-    float brightness = (Fullbright) ? 1.0 : Emissive;
-    float3 invAmbient = 1.0 - BaseAmbient;
-    float3 invDiffuse = 1.0 - DiffuseLight;
 
-    float vertexAlpha = input.Color.a * Material_Opacity;
-    float texVertexAlpha = texColor.a * vertexAlpha;
-
-    float alphaValue = (!AlphaIsEmissive) ? texVertexAlpha : vertexAlpha;
-    float emissiveAlpha = (!AlphaIsEmissive) ? brightness : texColor.a;
-
-    float alpha = (!TextureEnabled) ? vertexAlpha : alphaValue;
-    emissiveAlpha = (!TextureEnabled) ? brightness : emissiveAlpha;
-
-    float3 diffuseColor = input.Color.rgb * Material_Diffuse;
-    diffuseColor = (TextureEnabled) ? texColor.rgb * diffuseColor : diffuseColor;
-
-    float3 ambient = saturate(emissiveAlpha + BaseAmbient);
-    float3 ambientColor = emissiveAlpha * invDiffuse;
-
-    float ndotl = saturate(dot(normal, 1.0));
-    float3 frontLighting = ndotl * invAmbient + ambient;
-
-    float3 backLighting = abs(normal.z) * invAmbient * 0.6 + frontLighting;
-    float3 lighting = (normal.z >= -0.01) ? frontLighting : backLighting;
-
-    float3 sideLighting = abs(normal.x) * invAmbient * 0.3 + lighting;
-    lighting = saturate((normal.x >= -0.01) ? lighting : sideLighting);
-
-    float3 litColor = lighting * DiffuseLight + ambientColor;
-    float3 color = diffuseColor * litColor;
-
-    if (SpecularEnabled)
+    float alpha = input.Color.a * Material_Opacity;
+    if (TextureEnabled && !AlphaIsEmissive)
     {
-        float3 eyeDir = Eye - float3(0, 0.25, 0);
-        float specular = dot(eyeDir, normal);
-        specular = saturate(pow(specular, 8));
-        color += specular * 0.5;
+        alpha *= texColor.a;
     }
+
+    float3 diffuse = input.Color.rgb * Material_Diffuse;
+    if (TextureEnabled)
+    {
+        diffuse *= texColor.rgb;
+    }
+
+    float brightness = (Fullbright) ? 1.0 : Emissive;
+    if (TextureEnabled && AlphaIsEmissive)
+    {
+        brightness = texColor.a;
+    }
+
+    float3 color = ApplyLitShading(input.Normal, brightness, diffuse);
 
     return float4(color, alpha);
 }
@@ -96,39 +62,7 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
 float4 PS_Pre(VS_OUTPUT input) : COLOR0
 {
     float4 texColor = tex2D(BaseSampler, input.TexCoord);
-    float luminance = dot(texColor.rgb, LUMINANCE);
-
-    float alpha;
-    if (Fullbright)
-    {
-        alpha = texColor.a;
-    }
-    else if (AlphaIsEmissive)
-    {
-        alpha = Emissive;
-    }
-    else
-    {
-        alpha = luminance;
-    }
-    if (!TextureEnabled)
-    {
-        alpha = 1.0;
-    }
-
-    float4 color;
-    if (Fullbright)
-    {
-        color.rgb = alpha * Material_Diffuse * 0.5;
-        color.a = alpha * Material_Opacity;
-    }
-    else
-    {
-        color.rgb = 0.5;
-        color.a = 1.0;
-    }
-
-    return color;
+    return CalculatePrePassTextured(texColor);
 }
 
 technique TSM2

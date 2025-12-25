@@ -1,23 +1,7 @@
 // DefaultEffect_TexturedVertexColored
 // 8C85DFBC0C649AABB69DF33454F1CEAB82AD8A6C2171450FC683E7D15124A11A
 
-static const float3 LUMINANCE = float3(1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0);
-
-float4x4 Matrices_WorldViewProjection;
-float3x3 Matrices_Texture;
-float2 TexelOffset;
-
-float3 Material_Diffuse;
-float Material_Opacity;
-bool AlphaIsEmissive;
-bool Fullbright;
-float Emissive;
-
-texture BaseTexture;
-sampler2D BaseSampler = sampler_state
-{
-    Texture = <BaseTexture>;
-};
+#include "DefaultEffect.fxh"
 
 struct VS_INPUT
 {
@@ -36,28 +20,27 @@ struct VS_OUTPUT
 VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output;
-    
-    float4 worldViewPos = mul(input.Position, Matrices_WorldViewProjection);
-    output.Position.xy = (TexelOffset * worldViewPos.w) + worldViewPos.xy;
-    output.Position.zw = worldViewPos.zw;
-    
-    float3 texCoord = float3(input.TexCoord.xy, 1.0);
-    output.TexCoord = mul(texCoord, Matrices_Texture).xy;
+
+    float4 worldViewPos = TransformPositionToClip(input.Position);
+    output.Position = ApplyTexelOffset(worldViewPos);
+    output.TexCoord = TransformTexCoord(input.TexCoord);
     output.Color = input.Color;
-    
+
     return output;
 }
 
 float4 PS_Main(VS_OUTPUT input) : COLOR0
 {
     float4 texColor = tex2D(BaseSampler, input.TexCoord);
+
+    float alpha = input.Color.a * Material_Opacity;
+    if (!AlphaIsEmissive)
+    {
+        alpha *= texColor.a;
+    }
     
-    float vertexAlpha = input.Color.a * Material_Opacity;
-    float texturedAlpha = texColor.a * vertexAlpha;
-    float alpha = (AlphaIsEmissive) ? vertexAlpha : texturedAlpha;
-    
-    float3 materialColor = input.Color.rgb * Material_Diffuse;
-    float3 color = texColor.rgb * materialColor;
+    float3 color = input.Color.rgb * Material_Diffuse;
+    color *= texColor.rgb;
     
     return float4(color, alpha);
 }
@@ -65,35 +48,7 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
 float4 PS_Pre(VS_OUTPUT input) : COLOR0
 {
     float4 texColor = tex2D(BaseSampler, input.TexCoord);
-    float luminance = dot(texColor.rgb, LUMINANCE);
-    
-    float alpha;
-    if (Fullbright)
-    {
-        alpha = texColor.a;
-    }
-    else if (AlphaIsEmissive)
-    {
-        alpha = Emissive;
-    }
-    else
-    {
-        alpha = luminance;
-    }
-    
-    float4 color;
-    if (Fullbright)
-    {
-        color.rgb = alpha * Material_Diffuse * 0.5;
-        color.a = alpha * Material_Opacity;
-    }
-    else
-    {
-        color.rgb = 0.5;
-        color.a = 1.0;
-    }
-    
-    return color;
+    return CalculatePrePassTextured(texColor);
 }
 
 technique TSM2

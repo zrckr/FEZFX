@@ -1,13 +1,7 @@
 // DefaultEffect_VertexColored
 // 2899B01F2494D82D5F258560662D1C4C32C63F3EA0B124B4D6523D031DF50E96
 
-float3 Material_Diffuse;
-float Material_Opacity;
-float4x4 Matrices_WorldViewProjection;
-float2 TexelOffset;
-bool AlphaIsEmissive;
-bool Fullbright;
-float Emissive;
+#include "DefaultEffect.fxh"
 
 struct VS_INPUT
 {
@@ -25,8 +19,8 @@ VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output;
 
-    output.Position = mul(input.Position, Matrices_WorldViewProjection);
-    output.Position.xy += TexelOffset * output.Position.w;
+    float4 worldViewPos = TransformPositionToClip(input.Position);
+    output.Position = ApplyTexelOffset(worldViewPos);
     output.Color = input.Color;
 
     return output;
@@ -34,22 +28,15 @@ VS_OUTPUT VS(VS_INPUT input)
 
 float4 PS_Main(VS_OUTPUT input) : COLOR0
 {
-    float4 material = float4(Material_Diffuse, Material_Opacity);
-    return input.Color * material;
+    float alpha = input.Color.a * Material_Opacity;
+    float3 color = input.Color.rgb * Material_Diffuse;
+    
+    return float4(color, alpha);
 }
 
 float4 PS_Pre(VS_OUTPUT input) : COLOR0
 {
-    if (!AlphaIsEmissive)
-    {
-        return float4(0.5, 0.5, 0.5, 1.0);
-    }
-    
-    float factor = Fullbright ? 1.0 : Emissive;
-    float3 color = Material_Diffuse * factor * 0.5;
-    float alpha = Material_Opacity * factor;
-    
-    return float4(color, alpha);
+    return CalculatePrePassVertexColored();
 }
 
 technique TSM2
