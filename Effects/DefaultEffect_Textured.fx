@@ -18,14 +18,11 @@ struct VS_OUTPUT
 VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output;
-    
-    float4 worldViewPos = mul(input.Position, Matrices_WorldViewProjection);
-    output.Position.xy = (TexelOffset * worldViewPos.w) + worldViewPos.xy;
-    output.Position.zw = worldViewPos.zw;
-    
-    float3 texCoord = float3(input.TexCoord.xy, 1.0);
-    output.TexCoord = mul(texCoord, Matrices_Texture).xy;
-    
+
+    float4 worldViewPos = TransformPositionToClip(input.Position);
+    output.Position = ApplyTexelOffset(worldViewPos);
+    output.TexCoord = TransformTexCoord(input.TexCoord);
+
     return output;
 }
 

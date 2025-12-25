@@ -20,14 +20,12 @@ struct VS_OUTPUT
 VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output;
-    
-    float4 worldViewPos = mul(input.Position, Matrices_WorldViewProjection);
-    output.Position.xy = (TexelOffset * worldViewPos.w) + worldViewPos.xy;
-    output.Position.zw = worldViewPos.zw;
-    
-    output.Normal = normalize(mul(input.Normal, (float3x3)Matrices_WorldInverseTranspose));
+
+    float4 worldViewPos = TransformPositionToClip(input.Position);
+    output.Position = ApplyTexelOffset(worldViewPos);
+    output.Normal = normalize(TransformNormalToWorld(input.Normal));
     output.Color = input.Color;
-    
+
     return output;
 }
 

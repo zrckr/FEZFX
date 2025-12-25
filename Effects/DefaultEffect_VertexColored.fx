@@ -19,8 +19,8 @@ VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output;
 
-    output.Position = mul(input.Position, Matrices_WorldViewProjection);
-    output.Position.xy += TexelOffset * output.Position.w;
+    float4 worldViewPos = TransformPositionToClip(input.Position);
+    output.Position = ApplyTexelOffset(worldViewPos);
     output.Color = input.Color;
 
     return output;
