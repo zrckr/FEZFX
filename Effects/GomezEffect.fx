@@ -3,6 +3,8 @@
 
 #include "BaseEffect.fxh"
 
+static const float FEZ_HAT_OFFSET = 0.387499988;
+
 float NoMoreFez;    // boolean
 float Silhouette;   // boolean
 float ColorSwap;    // boolean
@@ -31,7 +33,7 @@ struct VS_OUTPUT
     float4 Position : POSITION0;
     float FogFactor : TEXCOORD1;
     float2 TexCoord : TEXCOORD2;
-    float DiscardValue : TEXCOORD3;
+    float HatOffset : TEXCOORD3;
 };
 
 VS_OUTPUT VS(VS_INPUT input)
@@ -45,16 +47,18 @@ VS_OUTPUT VS(VS_INPUT input)
     output.Position = ApplyTexelOffset(viewPos);
     output.TexCoord = TransformTexCoord(input.TexCoord);
     
-    output.DiscardValue = input.TexCoord.y * 2.0 - ALPHA_THRESHOLD;
+    output.HatOffset = input.TexCoord.y * 2.0 - FEZ_HAT_OFFSET;
     
+    float fogFactor;
     if (Fog_Type == FOG_TYPE_EXP_SQR)
     {
-        output.FogFactor = saturate(ApplyExponentialSquaredFog(worldViewPos.w, Fog_Density));
+        fogFactor = ApplyExponentialSquaredFog(viewPos.w, Fog_Density);
     }
     else if (Fog_Type == FOG_TYPE_NONE)
     {
-        output.FogFactor = 1.0;
+        fogFactor = 0.0;
     }
+    output.FogFactor = saturate(fogFactor);
 
     return output;
 }
@@ -64,7 +68,7 @@ float4 PS_Pre(VS_OUTPUT input) : COLOR0
     float4 texColor = tex2D(AnimatedSampler, input.TexCoord);
 
     ApplyAlphaTest(texColor.a * Material_Opacity);
-    if (NoMoreFez && input.DiscardValue)
+    if (NoMoreFez && input.HatOffset < 0)
     {
         clip(texColor.r - 0.5);
         clip(texColor.g - 0.25);
@@ -87,14 +91,10 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
     float alpha = texColor.a * Material_Opacity;
     
     if (ColorSwap && Silhouette)
-    {
+    {    
         if (texColor.r > 0.75)
         {
             color = WhiteSwap;
-        }
-        else if (texColor.r < 0.5)
-        {
-            color = BlackSwap;
         }
         else
         {
@@ -109,17 +109,21 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
         {
             color = RedSwap;  
         }
+        if (texColor.r < 0.5)
+        {
+            color = BlackSwap;
+        }
     }
     
     ApplyAlphaTest(alpha);
-    if (NoMoreFez && ColorSwap && input.DiscardValue)
+    if (NoMoreFez && input.HatOffset < 0)
     {
         clip(color.r - 0.5);
         clip(color.g - 0.25);
         clip(color.b - 0.5);
     }
 
-    if (!ColorSwap)
+    if (!Silhouette)
     {
         color = 0.0;
         alpha *= 0.5;
@@ -127,7 +131,7 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
 
     if (Background)
     {
-        color *= 0.5;
+        color *= (1.0 - 0.5 * Background);
     }
 
     color = lerp(color, Fog_Color, input.FogFactor);
