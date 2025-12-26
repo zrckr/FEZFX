@@ -207,4 +207,33 @@ float ApplySpecular(float3 normal)
     return saturate(pow(specular, 8)) * 0.5;
 }
 
+//------------------------------------------------------------------------------
+// UTILITY FUNCTIONS
+//------------------------------------------------------------------------------
+
+float3x3 QuaternionToBasis(float4 quaternion)
+{
+    float xx = quaternion.x * quaternion.x;
+    float yy = quaternion.y * quaternion.y;
+    float zz = quaternion.z * quaternion.z;
+    float xy = quaternion.x * quaternion.y;
+    float xz = quaternion.x * quaternion.z;
+    float xw = quaternion.x * quaternion.w;
+    float yz = quaternion.y * quaternion.z;
+    float yw = quaternion.y * quaternion.w;
+    float zw = quaternion.z * quaternion.w;
+
+    return float3x3(
+        1.0 - 2.0 * (yy + zz), 2.0 * (xy + zw), 2.0 * (xz - yw),
+        2.0 * (xy - zw), 1.0 - 2.0 * (xx + zz), 2.0 * (yz + xw),
+        2.0 * (xz + yw), 2.0 * (yz - xw), 1.0 - 2.0 * (xx + yy)
+    );
+}
+
+float4 DecodeFlags4(float flags)
+{
+    float4 fracs = frac(abs(floor(flags) * float4(0.5, 0.25, 0.125, 0.0625)));
+    return float4(fracs >= 0.5);
+}
+
 #endif // BASE_EFFECT_FXH
