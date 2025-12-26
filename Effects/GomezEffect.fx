@@ -3,12 +3,12 @@
 
 #include "BaseEffect.fxh"
 
-static const float FEZ_HAT_OFFSET = 0.387499988;
+static const float HAT_THRESHOLD = 25.0 / 64.0;     // approx
 
 float NoMoreFez;    // boolean
 float Silhouette;   // boolean
 float ColorSwap;    // boolean
-float Background;   // boolean
+float Background;
 
 float3 RedSwap;
 float3 BlackSwap;
@@ -41,18 +41,18 @@ VS_OUTPUT VS(VS_INPUT input)
     VS_OUTPUT output;
 
     float4 worldPos = TransformPositionToWorld(input.Position);
-    worldPos.xyz += dot(worldPos.xyz - LevelCenter, Eye) * EyeSign;
+    worldPos = ApplyEyeParallax(worldPos);
 
-    float4 viewPos = TransformWorldToClip(worldPos);
-    output.Position = ApplyTexelOffset(viewPos);
+    float4 worldViewPos = TransformWorldToClip(worldPos);
+    output.Position = ApplyTexelOffset(worldViewPos);
     output.TexCoord = TransformTexCoord(input.TexCoord);
     
-    output.HatOffset = input.TexCoord.y * 2.0 - FEZ_HAT_OFFSET;
+    output.HatOffset = input.TexCoord.y * 2.0 - HAT_THRESHOLD;
     
     float fogFactor;
     if (Fog_Type == FOG_TYPE_EXP_SQR)
     {
-        fogFactor = ApplyExponentialSquaredFog(viewPos.w, Fog_Density);
+        fogFactor = ApplyExponentialSquaredFog(worldViewPos.w, Fog_Density);
     }
     else if (Fog_Type == FOG_TYPE_NONE)
     {
@@ -77,8 +77,7 @@ float4 PS_Pre(VS_OUTPUT input) : COLOR0
 
     float3 color = DiffuseLight * 0.5;
     float alpha = texColor.a * Material_Opacity;
-    alpha = (alpha < 0.0) ? 0.0 : 1.0;
-    alpha += (alpha > 0.0) ? 0.0 : -1.0;
+    alpha = (alpha >= 0.0) ? 1.0 : -1.0;
 
     return float4(color, alpha);
 }
@@ -90,7 +89,7 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
     float3 color = texColor.rgb;
     float alpha = texColor.a * Material_Opacity;
     
-    if (ColorSwap && Silhouette)
+    if (ColorSwap)
     {    
         if (texColor.r > 0.75)
         {
@@ -123,24 +122,19 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
         clip(color.b - 0.5);
     }
 
-    if (!Silhouette)
+    if (Silhouette)
     {
         color = 0.0;
         alpha *= 0.5;
     }
 
-    if (Background)
-    {
-        color *= (1.0 - 0.5 * Background);
-    }
-
+    color *= (1.0 - 0.5 * Background);
     color = lerp(color, Fog_Color, input.FogFactor);
 
     return float4(color, alpha);
 }
 
-// Techniques
-technique GomezEffect
+technique TSM2
 {
     pass Pre
     {
