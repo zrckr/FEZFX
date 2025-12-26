@@ -34,7 +34,7 @@ struct VS_OUTPUT
     float2 AnimData : TEXCOORD5;
 };
 
-VS_OUTPUT VS_Main(VS_INPUT input)
+VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output;
 
@@ -138,13 +138,13 @@ technique TSM2
 {
     pass Pre
     {
-        VertexShader = compile vs_2_0 VS_Main();
+        VertexShader = compile vs_2_0 VS();
         PixelShader = compile ps_2_0 PS_Pre();
     }
 
     pass Main
     {
-        VertexShader = compile vs_2_0 VS_Main();
+        VertexShader = compile vs_2_0 VS();
         PixelShader = compile ps_2_0 PS_Main();
     }
 }

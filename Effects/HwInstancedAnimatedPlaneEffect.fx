@@ -4,8 +4,8 @@
 #include "BaseEffect.fxh"
 
 float IgnoreFog;        // boolean
-float IgnoreShading;    // boolean
 float SewerHax;         // boolean
+float IgnoreShading;    // boolean
 float2 FrameScale;
 
 texture AnimatedTexture;
@@ -19,100 +19,120 @@ struct VS_INPUT
     float4 Position : POSITION0;
     float3 Normal : NORMAL0;
     float2 TexCoord : TEXCOORD0;
-    float4 InstanceData0 : TEXCOORD2;   // Position.X, Position.Y, Position.Z, U_Offset
-    float4 InstanceData1 : TEXCOORD3;   // Rotation.X, Rotation.Y, Rotation.Z, Rotation.W
-    float4 InstanceData2 : TEXCOORD4;   // Scale.X, Scale.Y, V_Offset, Flags
-    float4 InstanceData3 : TEXCOORD5;   // Filter.R, Filter.G, Filter.B, Opacity
+    float4 InstanceData0 : TEXCOORD2;   // Position, U_Offset
+    float4 InstanceData1 : TEXCOORD3;   // Rotation
+    float4 InstanceData2 : TEXCOORD4;   // Scale, V_Offset, Flags
+    float4 InstanceData3 : TEXCOORD5;   // Filter, Opacity
 };
 
 struct VS_OUTPUT
 {
+    float4 Position : POSITION0;
     float2 TexCoord : TEXCOORD0;
     float3 Normal : TEXCOORD1;
     float FogFactor : TEXCOORD2;
-    float4 Color : TEXCOORD3;           // Filter, Opacity
-    float2 TexFlags : TEXCOORD4;        // XTextureRepeat, YTextureRepeat
-    float2 FrameData : TEXCOORD5;       // Fullbright, FrameScale.y
-    float4 Position : POSITION0;
+    float4 Color : TEXCOORD3;
+    float2 Flags : TEXCOORD4;
+    float2 AnimData : TEXCOORD5;
 };
 
 VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output;
 
-    // Alias inputs from instance matrix
     float3 Position = input.InstanceData0.xyz;
-    float2 TexOffset = float2(input.InstanceData0.w, input.InstanceData2.z);
+    float U_Offset = input.InstanceData0.w;
     float4 Rotation = input.InstanceData1;
     float2 Scale = input.InstanceData2.xy;
+    float V_Offset = input.InstanceData2.z;
     float Flags = input.InstanceData2.w;
-    float4 Color = input.InstanceData3;
+    float4 FilterOpacity = input.InstanceData3;
 
-    // Convert bit flags to binary float4 flags
-    float4 flags4 = DecodeFlags4(Flags);
-    float Fullbright = flags4.x;        // (1 << 0)  =>  x ∊ {0, 1}
-    float ClampTexture = flags4.y;      // (1 << 1)  =>  y ∊ {0, 1}
-    float XTextureRepeat = flags4.z;    // (1 << 2)  =>  z ∊ {0, 1}
-    float YTextureRepeat = flags4.w;    // (1 << 3)  =>  w ∊ {0, 1}
+    float Fullbright = GetFlag(Flags, 1);
+    float ClampTexture = GetFlag(Flags, 2);
+    float XTextureRepeat = GetFlag(Flags, 4);
+    float YTextureRepeat = GetFlag(Flags, 8);
 
-    // Calculate texture coordinates with instance offset
-    float2 texCoord = input.TexCoord + TexOffset;
-    if (XTextureRepeat)
-    {
-        texCoord.x = frac(texCoord.x);
-    }
-    if (YTextureRepeat)
-    {
-        texCoord.y = frac(texCoord.y);
-    }
-    if (ClampTexture)
-    {
-        texCoord = saturate(texCoord);
-    }
-    output.TexCoord = texCoord;
-
-    // Transform normal
-    float3x3 basis = QuaternionToBasis(Rotation);
-    output.Normal = mul(input.Normal, basis);
-
-    // Transform position
+    float3x3 basis = QuaternionToMatrix(Rotation);
     float4x4 xform = float4x4(
-        basis[0] * Scale.x, 0.0,
-        basis[1] * Scale.y, 0.0,
-        basis[2] * 1.0, 0.0,
+        basis[0] * Scale.x, 0,
+        basis[1] * Scale.y, 0,
+        basis[2], 0,
         Position, 1.0
     );
+
     float4 worldPos = mul(input.Position, xform);
     worldPos = ApplyEyeParallax(worldPos);
-    float4 worldViewPos = TransformWorldToClip(worldPos);
+    float4 worldViewPos = TransformPositionToClip(worldPos);
     output.Position = ApplyTexelOffset(worldViewPos);
 
-    // Calculate fog
-    float fogFactor;
+    float2 texCoord = input.TexCoord;
+    texCoord.x *= (XTextureRepeat) ? -1 : 1;
+    texCoord.y *= (YTextureRepeat) ? -1 : 1;
+    output.TexCoord = texCoord * FrameScale + float2(U_Offset, V_Offset);
+
+    output.Normal = normalize(mul(input.Normal, basis));
+
+    float fogFactor = 1.0;
     if (Fog_Type == FOG_TYPE_EXP_SQR)
     {
         fogFactor = ApplyExponentialSquaredFog(worldViewPos.w, Fog_Density);
     }
     else if (Fog_Type == FOG_TYPE_NONE)
     {
-        fogFactor = 1.0;
+        fogFactor = 0.0;
     }
-    output.FogFactor = (IgnoreFog) ? saturate(1.0 - fogFactor) : fogFactor;
+    output.FogFactor = (IgnoreFog) ? 0.0 : fogFactor;
 
-    // Set the rest of outputs
-    output.Color = Color;
-    output.TexFlags = float2(XTextureRepeat, YTextureRepeat);
-    output.FrameData = float2(Fullbright, FrameScale.y);
+    output.Color = FilterOpacity;
+    output.Flags.x = Fullbright;
+    output.Flags.y = ClampTexture;
+    output.AnimData.x = V_Offset;
+    output.AnimData.y = FrameScale.y;
 
     return output;
 }
 
 float4 PS_Pre(VS_OUTPUT input) : COLOR0
 {
+    float Fullbright = input.Flags.x;
+    float ClampTexture = input.Flags.y;
+    float V_Offset = input.AnimData.x;
+    float FrameScaleY = input.AnimData.y;
+
+    if (ClampTexture)
+    {
+        float wrappedV = frac((input.TexCoord.y - V_Offset) / FrameScaleY);
+        input.TexCoord.y = wrappedV * FrameScaleY + V_Offset;
+    }
+
+    float4 texColor = tex2D(AnimatedSampler, input.TexCoord);
+    float alpha = input.Color.a * texColor.a;
+    ApplyAlphaTest(alpha);
+
+    float brightness = (IgnoreShading || Fullbright) ? 1.0 : 0.0;
+    float3 litColor = CalculateLighting(input.Normal, brightness);
+
+    float3 color = lerp(litColor, 1.0, input.FogFactor);
+    if (SewerHax)
+    {
+        color = (texColor.r < 0.75) ? 0.0 : 1.0;
+    }
+    color *= texColor.rgb * 0.5;
+
+    return float4(color, alpha);
 }
 
 float4 PS_Main(VS_OUTPUT input) : COLOR0
 {
+    float4 texColor = tex2D(AnimatedSampler, input.TexCoord);
+    float alpha = texColor.a * input.Color.a;
+    ApplyAlphaTest(alpha);
+
+    float3 color = texColor.rgb * input.Color.rgb;
+    color = lerp(color, Fog_Color, input.FogFactor);
+
+    return float4(color, alpha);
 }
 
 technique TSM2
