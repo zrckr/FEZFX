@@ -71,7 +71,7 @@
 - [ ] HwInstancedDotEffect
 - [ ] HwInstancedArtObjectEffect
 - [ ] InstancedDotEffect
-- [ ] HwInstancedStaticPlaneEffect
+- [x] HwInstancedStaticPlaneEffect (Background Planes, static, SM3 version)
 - [x] HwInstancedAnimatedPlaneEffect (Background Planes, animated, SM3 version)
 - [ ] HwTrileEffect
 - [ ] TrileEffect
