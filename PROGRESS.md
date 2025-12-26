@@ -76,4 +76,4 @@
 - [ ] HwTrileEffect
 - [ ] TrileEffect
 - [ ] InstancedArtObjectEffect
-- [ ] InstancedStaticPlaneEffect
+- [x] InstancedStaticPlaneEffect (Background Planes, static, SM2 version)
