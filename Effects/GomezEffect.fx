@@ -3,7 +3,7 @@
 
 #include "BaseEffect.fxh"
 
-static const float HAT_THRESHOLD = 25.0 / 64.0;     // approx
+static const float HAT_THRESHOLD = 31.0 / 80.0;     // approx
 
 float NoMoreFez;    // boolean
 float Silhouette;   // boolean

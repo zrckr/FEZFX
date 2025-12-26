@@ -62,7 +62,7 @@
 # The Big Ones
 
 - [ ] InstancedAnimatedPlaneEffect
-- [ ] GomezEffect
+- [x] GomezEffect (Player sprite)
 - [ ] PlaneParticleEffect
 - [ ] HwPlaneParticleEffect
 - [ ] HorizontalTrailsEffect
