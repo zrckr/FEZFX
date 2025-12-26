@@ -61,7 +61,7 @@
 
 # The Big Ones
 
-- [ ] InstancedAnimatedPlaneEffect
+- [x] InstancedAnimatedPlaneEffect (Animated Background Planes, SM2 version)
 - [x] GomezEffect (Player sprite)
 - [ ] PlaneParticleEffect
 - [ ] HwPlaneParticleEffect

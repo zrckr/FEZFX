@@ -109,11 +109,8 @@ float4 PS_Pre(VS_OUTPUT input) : COLOR0
     float alpha = input.Color.a * texColor.a;
     ApplyAlphaTest(alpha);
 
-    float3 litColor = 1.0;
-    if (!IgnoreShading && !Fullbright)
-    {
-        litColor = CalculateLighting(input.Normal, 1.0);
-    }
+    float brightness = (IgnoreShading || Fullbright) ? 1.0 : 0.0;
+    float3 litColor = CalculateLighting(input.Normal, brightness);
 
     float3 color = lerp(litColor, 1.0, input.FogFactor);
     if (SewerHax)
