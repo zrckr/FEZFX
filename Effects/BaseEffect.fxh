@@ -211,7 +211,7 @@ float ApplySpecular(float3 normal)
 // UTILITY FUNCTIONS
 //------------------------------------------------------------------------------
 
-float3x3 QuaternionToBasis(float4 quaternion)
+float3x3 QuaternionToMatrix(float4 quaternion)
 {
     float xx = quaternion.x * quaternion.x;
     float yy = quaternion.y * quaternion.y;
@@ -230,10 +230,13 @@ float3x3 QuaternionToBasis(float4 quaternion)
     );
 }
 
-float4 DecodeFlags4(float flags)
+float GetFlag(float flags, float bit)
 {
-    float4 fracs = frac(abs(floor(flags) * float4(0.5, 0.25, 0.125, 0.0625)));
-    return float4(fracs >= 0.5);
+    float flagValue = floor(flags);
+    float divisor = bit * 0.5;
+    float divided = flagValue / divisor;
+    float fraction = frac(divided);
+    return float(frac(fraction * 0.5) >= 0.5);
 }
 
 #endif // BASE_EFFECT_FXH
