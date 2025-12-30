@@ -2,16 +2,16 @@
 
 ![](Docs/Thumbnail.png)
 
-*The result of reconstructed `ShimmeringPointsEffect` shader*
+*The result of messing around with `TrixelEffect` and `InstancedArtObjectEffect` shaders*.
 
 ## Overview
 
 This project reconstructs the original DirectX 9.0 effect shaders effects,
 converting bytecode back into readable HLSL source code.
 
-## Progress
+## Shaders
 
-See [PROGRESS](PROGRESS.md) for the current status of shader reconstruction.
+See [SHADERS](SHADERS.md) to see the purpose of each shader.
 
 ## How to
 
@@ -37,3 +37,9 @@ fxc /T fx_2_0 FastBlurEffect.fx /Fo FastBlurEffect.fx.fxc
 4. Run `MONOMODDED_FEZ.exe` or via graphics analyzer with OpenGL support and
    hope that is not crashing on startup 😏 (see for an exception with `Effect`
    class)
+
+## Special Thanks
+
+- [Krzyhau](https://github.com/Krzyhau) - for helping with `FastBlurEffect` shader.
+
+- [FEZUG Mod](https://github.com/FEZModding/FEZUG) - for the wonderful `warp` command.

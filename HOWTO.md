@@ -53,6 +53,7 @@ Keep in mind:
 * The compiler unrolls `for` loops.
 * If the shader has multiple fragment passes, then the single vertex shader will
   be compiled for each pass.
+* The compiler performs code optimization.
 
 ## 2. MonoGame Effects
 
