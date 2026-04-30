@@ -98,7 +98,7 @@ VS_OUTPUT VS(VS_INPUT input)
     float4 worldPos = mul(input.TemplatePosition, instanceMatrix);
     worldPos = ApplyEyeParallax(worldPos);
     float4 worldViewPos = TransformPositionToClip(worldPos);
-    output.Position = worldViewPos;
+    output.Position = ApplyTexelOffset(worldViewPos);
 
     output.Normal = mul(input.Normal, (float3x3)instanceMatrix);
     output.TexCoord = input.TexCoord;

@@ -40,7 +40,7 @@ float4 PS(VS_OUTPUT input) : COLOR0
     // Create new frame factor
     float3 invDiff = 1.0 - abs(AcceptColor - newFrame.rgb);
     float combine = invDiff.r * invDiff.g * invDiff.b;
-    float newFrameFactor = pow(combine, 2.0) * AcceptColor;
+    float3 newFrameFactor = pow(combine, 2.0) * AcceptColor;
 
     // Blend new matched color with old frame color
     float3 newContribution = newFrameFactor * (1.0 - OLD_FRAME_MIX);
