@@ -61,7 +61,7 @@ VS_OUTPUT VS(VS_INPUT input)
 
 float4 PS_Pre(VS_OUTPUT input) : COLOR0
 {
-clip(input.ClipValue);
+    clip(input.ClipValue);
     ApplyAlphaTest(input.Opacity);
 
     float4 texColor = SAMPLE_TEXTURE(CubemapTexture, input.TexCoord);

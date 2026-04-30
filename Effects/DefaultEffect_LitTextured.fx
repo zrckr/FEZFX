@@ -49,7 +49,6 @@ float4 PS_Main(VS_OUTPUT input) : COLOR0
         }
     }
     
-    // NOTE: This present in HLSL bytecode of PC version
     ApplyAlphaTest(alpha);
     
     color = ComputeLightWithSpecular(input.Normal, emissive, color);
