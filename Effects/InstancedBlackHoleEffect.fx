@@ -13,10 +13,16 @@ float IsTextureEnabled;     // boolean
 
 DECLARE_TEXTURE(BaseTexture);
 
-struct VS_INPUT
+struct VS_BODY_INPUT
 {
     float4 Position : POSITION;
-    float2 TexCoord : TEXCOORD;
+    float InstanceIndex : TEXCOORD0;
+};
+
+struct VS_FRINGE_INPUT
+{
+    float4 Position : POSITION;
+    float2 TexCoord : TEXCOORD0;
     float InstanceIndex : TEXCOORD1;
 };
 
@@ -28,7 +34,7 @@ struct VS_OUTPUT
     float InstanceIndex : TEXCOORD2;
 };
 
-VS_OUTPUT VS_Body(VS_INPUT input)
+VS_OUTPUT VS_Body(VS_BODY_INPUT input)
 {
     VS_OUTPUT output;
     float4x4 data = InstanceData[(int)input.InstanceIndex];
@@ -45,7 +51,7 @@ VS_OUTPUT VS_Body(VS_INPUT input)
     return output;
 }
 
-VS_OUTPUT VS_Fringe(VS_INPUT input)
+VS_OUTPUT VS_Fringe(VS_FRINGE_INPUT input)
 {
     VS_OUTPUT output;
     float4x4 data = InstanceData[(int)input.InstanceIndex];

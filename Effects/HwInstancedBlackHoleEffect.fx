@@ -7,10 +7,19 @@ float IsTextureEnabled;     // boolean
 
 DECLARE_TEXTURE(BaseTexture);
 
-struct VS_INPUT
+struct VS_BODY_INPUT
 {
     float4 Position : POSITION;
-    float2 TexCoord : TEXCOORD;
+    float4 Data0 : TEXCOORD2;       // Row 1 : Position (xyz), unused (w)
+    float4 Data1 : TEXCOORD3;       // Row 2 : Diffuse (xyz), unused (w)
+    float4 Data2 : TEXCOORD4;       // Row 3 : Texture matrix position (xy), unused (zw)
+    float4 Data3 : TEXCOORD5;       // Row 4 : Texture matrix scale (xy), unused (zw)
+};
+
+struct VS_FRINGE_INPUT
+{
+    float4 Position : POSITION;
+    float2 TexCoord : TEXCOORD0;
     float4 Data0 : TEXCOORD2;       // Row 1 : Position (xyz), unused (w)
     float4 Data1 : TEXCOORD3;       // Row 2 : Diffuse (xyz), unused (w)
     float4 Data2 : TEXCOORD4;       // Row 3 : Texture matrix position (xy), unused (zw)
@@ -24,7 +33,7 @@ struct VS_OUTPUT
     float4 Position : POSITION;
 };
 
-VS_OUTPUT VS_Body(VS_INPUT input)
+VS_OUTPUT VS_Body(VS_BODY_INPUT input)
 {
     VS_OUTPUT output;
 
@@ -39,7 +48,7 @@ VS_OUTPUT VS_Body(VS_INPUT input)
     return output;
 }
 
-VS_OUTPUT VS_Fringe(VS_INPUT input)
+VS_OUTPUT VS_Fringe(VS_FRINGE_INPUT input)
 {
     VS_OUTPUT output;
 
