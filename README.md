@@ -25,6 +25,9 @@ Use the `fxc` compiler with the `fx_2_0` profile support:
 fxc /T fx_2_0 FastBlurEffect.fx /Fo FastBlurEffect.fxc
 ```
 
+You can also use `Compile.ps1` (Windows) and `Compile.sh` (Linux)
+to compile shaders using bundled `fxc` compiler.
+
 ## Testing
 
 1. Download and install [HAT](https://github.com/FEZModding/HAT).
