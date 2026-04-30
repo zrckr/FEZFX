@@ -12,12 +12,8 @@ ENV/
 env.bak/
 venv.bak/
 
-# Shader compilers
-dxc.exe
-dxcompiler.dll
-dxil.dll
-dxv.exe
-fxc.exe
+# Output
+[Oo]ut/
 
 # IDEs and editors
 .idea/
